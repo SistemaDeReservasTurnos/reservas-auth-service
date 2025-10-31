@@ -1,4 +1,4 @@
-package com.servicio.reservas.auth.application.dto;
+package com.servicio.reservas.auth.infraestructure.users;
 
 import lombok.Data;
 
