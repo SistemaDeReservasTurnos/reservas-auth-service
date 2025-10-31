@@ -21,6 +21,7 @@ public class AuthService implements IAuthService {
     private final TokenRepository tokenRepository;
     private final ITokenService tokenService;
 
+    @Override
     public TokenResponse register(RegisterRequest registerRequest) {
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         Role.fromString(registerRequest.getRole());
@@ -28,7 +29,7 @@ public class AuthService implements IAuthService {
 
         String jwtToken = tokenService.generateToken(user);
         String jwtRefreshToken = tokenService.generateRefreshToken(user);
-        saveUserToken(user,  jwtToken);
+        saveUserToken(user, jwtToken);
 
         return new TokenResponse(jwtToken, jwtRefreshToken);
     }

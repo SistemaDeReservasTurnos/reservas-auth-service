@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 public class TokenRepositoryPersistance implements TokenRepository {
     private final SpringRepositoryPersistance springRepositoryPersistence;
 
+    @Override
     public Token save(Token token) {
         return TokenModelMapper.toEntity(springRepositoryPersistence.save(TokenModelMapper.toModel(token)));
     }

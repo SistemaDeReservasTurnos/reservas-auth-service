@@ -21,10 +21,12 @@ public class TokenService implements ITokenService {
     @Value("${application.security.jwt.refresh-token.expiration}")
     private Long refreshTokenExpiration;
 
+    @Override
     public String generateToken(UserDTO user) {
         return buildToken(user, tokenExpiration);
     }
 
+    @Override
     public String generateRefreshToken(UserDTO user) {
         return buildToken(user, refreshTokenExpiration);
     }
