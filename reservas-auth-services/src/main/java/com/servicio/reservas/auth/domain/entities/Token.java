@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class Token {
-    private int id;
+    private Long id;
     private String token;
     private boolean revoked;
     private boolean expired;
