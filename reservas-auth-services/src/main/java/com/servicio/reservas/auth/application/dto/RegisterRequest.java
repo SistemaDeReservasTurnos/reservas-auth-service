@@ -1,6 +1,5 @@
 package com.servicio.reservas.auth.application.dto;
 
-import com.servicio.reservas.auth.domain.entities.Role;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,5 +10,5 @@ public class RegisterRequest {
     private String email;
     private String password;
     private String phone_number;
-    private Role role;
+    private String role;
 }
