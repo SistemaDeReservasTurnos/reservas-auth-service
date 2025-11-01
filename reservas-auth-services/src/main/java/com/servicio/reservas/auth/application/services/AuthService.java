@@ -40,6 +40,7 @@ public class AuthService implements IAuthService {
         return new TokenResponse(jwtToken, jwtRefreshToken);
     }
 
+    @Override
     public TokenResponse login(LoginRequest loginRequest) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
