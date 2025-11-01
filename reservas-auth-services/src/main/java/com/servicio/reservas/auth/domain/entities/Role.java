@@ -16,7 +16,7 @@ public enum Role {
             return Role.valueOf(cleanedText);
 
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid value: " + text);
+            throw new IllegalArgumentException("Invalid role: " + text + ". Valid roles are: CLIENTE, EMPLEADO, ADMINISTRADOR.");
         }
     }
 }
