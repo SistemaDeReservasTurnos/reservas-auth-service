@@ -7,7 +7,7 @@ public enum Role {
 
     public static Role fromString(String text) {
         if (text == null) {
-            return null;
+            throw new IllegalArgumentException("Role cannot be null. Valid roles are: CLIENTE, EMPLEADO, ADMINISTRADOR.");
         }
 
         try {
