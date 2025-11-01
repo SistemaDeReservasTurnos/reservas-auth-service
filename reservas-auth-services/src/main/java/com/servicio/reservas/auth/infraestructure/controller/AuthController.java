@@ -1,5 +1,6 @@
 package com.servicio.reservas.auth.infraestructure.controller;
 
+import com.servicio.reservas.auth.application.dto.LoginRequest;
 import com.servicio.reservas.auth.application.dto.RegisterRequest;
 import com.servicio.reservas.auth.application.dto.TokenResponse;
 import com.servicio.reservas.auth.application.ports.in.IAuthService;
@@ -23,5 +24,12 @@ public class AuthController {
         TokenResponse tokenResponse = authService.register(registerRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(tokenResponse);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
+        TokenResponse tokenResponse = authService.login(loginRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
     }
 }
