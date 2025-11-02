@@ -7,4 +7,5 @@ import com.servicio.reservas.auth.application.dto.TokenResponse;
 public interface IAuthService {
     TokenResponse register(RegisterRequest registerRequest);
     TokenResponse login(LoginRequest loginRequest);
+    TokenResponse refreshToken(String authHeader);
 }
