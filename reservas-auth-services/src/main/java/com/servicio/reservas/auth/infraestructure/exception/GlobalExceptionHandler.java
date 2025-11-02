@@ -1,7 +1,9 @@
 package com.servicio.reservas.auth.infraestructure.exception;
 
+import com.servicio.reservas.auth.application.exception.ServiceUnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
@@ -34,5 +36,17 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleUsernameNotFoundException(AuthenticationException ex, HttpServletRequest request) {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(AuthenticationServiceException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleAuthenticationServiceException(AuthenticationServiceException ex, HttpServletRequest request) {
+        return new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
+    }
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ErrorResponse handleServiceUnavailableException(ServiceUnavailableException ex, HttpServletRequest request) {
+        return new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
     }
 }
