@@ -37,15 +37,9 @@ public class GlobalExceptionHandler {
         return new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
     }
 
-    @ExceptionHandler(AuthenticationServiceException.class)
+    @ExceptionHandler({AuthenticationServiceException.class, ServiceUnavailableException.class})
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    public ErrorResponse handleAuthenticationServiceException(AuthenticationServiceException ex, HttpServletRequest request) {
-        return new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
-    }
-
-    @ExceptionHandler(ServiceUnavailableException.class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    public ErrorResponse handleServiceUnavailableException(ServiceUnavailableException ex, HttpServletRequest request) {
+    public ErrorResponse handleAuthenticationServiceException(Exception ex, HttpServletRequest request) {
         return new ErrorResponse(HttpStatus.SERVICE_UNAVAILABLE.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
     }
 }
