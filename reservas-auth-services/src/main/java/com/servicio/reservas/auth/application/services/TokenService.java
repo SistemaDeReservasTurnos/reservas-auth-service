@@ -34,13 +34,7 @@ public class TokenService implements ITokenService {
 
     @Override
     public String extractUsername(String token) {
-        Claims jwtToken = Jwts.parser()
-                .verifyWith(getSignInKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return jwtToken.getSubject();
+        return extractClaims(token).getSubject();
     }
 
     @Override
@@ -55,13 +49,15 @@ public class TokenService implements ITokenService {
     }
 
     private Date extractExpiration(String token) {
-        Claims jwtToken = Jwts.parser()
+        return extractClaims(token).getExpiration();
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
                 .verifyWith(getSignInKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-
-        return jwtToken.getExpiration();
     }
 
     private String buildToken(UserDTO user, long expiration) {

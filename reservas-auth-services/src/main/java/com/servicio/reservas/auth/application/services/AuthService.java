@@ -79,7 +79,7 @@ public class AuthService implements IAuthService {
             }
 
             UserDTO user = userClient.findByEmail(userEmail)
-                    .orElseThrow(() -> new BadCredentialsException("Invalid Refresh Token (user not found)"));
+                    .orElseThrow(() -> new BadCredentialsException("Invalid Refresh Token"));
 
             if (!tokenService.isTokenValid(refreshToken, user)) {
                 throw new BadCredentialsException("Invalid Refresh Token");
