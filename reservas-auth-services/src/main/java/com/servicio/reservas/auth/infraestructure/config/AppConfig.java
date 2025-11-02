@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -16,7 +17,8 @@ public class AppConfig {
     @Bean
     public UserDetailsService userDetailsService(UserClient userClient) {
         return username -> {
-            UserDTO user = userClient.findByEmail(username);
+            UserDTO user = userClient.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
             return User.builder()
                     .username(user.getEmail())
