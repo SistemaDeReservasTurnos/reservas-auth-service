@@ -7,12 +7,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Optional;
+
 @FeignClient(name = "reservas-usuarios-service", configuration = UserClientConfig.class)
 public interface UserClient {
     @PostMapping("/api/users/create")
     UserDTO create(@RequestBody RegisterRequest registerRequest);
 
     @GetMapping("/api/users/email/{email}")
-    UserDTO findByEmail(@PathVariable String email);
+    Optional<UserDTO> findByEmail(@PathVariable String email);
 }
 
