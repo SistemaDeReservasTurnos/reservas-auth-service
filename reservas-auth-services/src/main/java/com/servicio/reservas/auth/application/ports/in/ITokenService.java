@@ -5,4 +5,6 @@ import com.servicio.reservas.auth.infraestructure.users.UserDTO;
 public interface ITokenService {
     String generateToken(UserDTO user);
     String generateRefreshToken(UserDTO user);
+    String extractUsername(String token);
+    boolean isTokenValid(String token, UserDTO user);
 }

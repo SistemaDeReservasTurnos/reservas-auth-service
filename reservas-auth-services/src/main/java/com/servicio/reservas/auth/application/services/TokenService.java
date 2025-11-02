@@ -2,6 +2,7 @@ package com.servicio.reservas.auth.application.services;
 
 import com.servicio.reservas.auth.application.ports.in.ITokenService;
 import com.servicio.reservas.auth.infraestructure.users.UserDTO;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -29,6 +30,34 @@ public class TokenService implements ITokenService {
     @Override
     public String generateRefreshToken(UserDTO user) {
         return buildToken(user, refreshTokenExpiration);
+    }
+
+    @Override
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    @Override
+    public boolean isTokenValid(String token, UserDTO user) {
+        String username = extractUsername(token);
+
+        return username.equals(user.getEmail()) && !isTokenExpired(token);
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaims(token).getExpiration();
+    }
+
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private String buildToken(UserDTO user, long expiration) {
