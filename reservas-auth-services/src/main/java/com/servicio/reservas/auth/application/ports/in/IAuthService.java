@@ -8,4 +8,5 @@ public interface IAuthService {
     TokenResponse register(RegisterRequest registerRequest);
     TokenResponse login(LoginRequest loginRequest);
     TokenResponse refreshToken(String authHeader);
+    void logout(String authHeader);
 }

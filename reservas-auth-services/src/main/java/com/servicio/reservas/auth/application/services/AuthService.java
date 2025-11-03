@@ -13,6 +13,7 @@ import com.servicio.reservas.auth.infraestructure.users.UserDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,13 +24,20 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserClient userClient;
     private final TokenRepository tokenRepository;
     private final ITokenService tokenService;
     private final AuthenticationManager authenticationManager;
+
+    public AuthService(PasswordEncoder passwordEncoder, UserClient userClient, TokenRepository tokenRepository, TokenService tokenService,@Lazy AuthenticationManager authenticationManager) {
+        this.passwordEncoder = passwordEncoder;
+        this.userClient = userClient;
+        this.tokenRepository = tokenRepository;
+        this.tokenService = tokenService;
+        this.authenticationManager = authenticationManager;
+    }
 
     @Override
     public TokenResponse register(RegisterRequest registerRequest) {
@@ -95,6 +103,21 @@ public class AuthService implements IAuthService {
         } catch (JwtException e) {
             throw new BadCredentialsException("Invalid Refresh Token");
         }
+    }
+
+    @Override
+    public void logout(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new BadCredentialsException("Invalid Token");
+        }
+
+        String jwtToken = authHeader.substring(7);
+        Token foundToken = tokenRepository.findByToken(jwtToken)
+                .orElseThrow(() -> new BadCredentialsException("Invalid Token"));
+
+        foundToken.setRevoked(true);
+        foundToken.setExpired(true);
+        tokenRepository.save(foundToken);
     }
 
     private void revokeAllUserTokens(UserDTO user) {
