@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -34,5 +35,16 @@ public class TokenRepositoryPersistance implements TokenRepository {
                 .map(TokenModelMapper::toModel)
                 .collect(Collectors.toList())
         );
+    }
+
+    @Override
+    public Optional<Token> findByToken(String token) {
+        TokenModel tokenModel = springRepositoryPersistence.findByToken(token).orElse(null);
+
+        if (tokenModel == null) {
+            return Optional.empty();
+        }
+
+        return Optional.of(TokenModelMapper.toEntity(tokenModel));
     }
 }
