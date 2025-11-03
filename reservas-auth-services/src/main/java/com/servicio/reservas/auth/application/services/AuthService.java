@@ -12,7 +12,6 @@ import com.servicio.reservas.auth.infraestructure.users.UserClient;
 import com.servicio.reservas.auth.infraestructure.users.UserDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
