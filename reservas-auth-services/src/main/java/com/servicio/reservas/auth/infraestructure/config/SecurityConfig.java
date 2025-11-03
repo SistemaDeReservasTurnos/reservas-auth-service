@@ -25,7 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final IAuthService authService;
     private final ObjectMapper objectMapper;
-    private final String LOGOUT_ERROR = "logoutError";
+    private static final String LOGOUT_ERROR = "logoutError";
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 

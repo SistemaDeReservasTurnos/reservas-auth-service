@@ -39,7 +39,7 @@ public class TokenRepositoryPersistance implements TokenRepository {
 
     @Override
     public Optional<Token> findByToken(String token) {
-        TokenModel tokenModel = springRepositoryPersistence.findByToken(token);
+        TokenModel tokenModel = springRepositoryPersistence.findByToken(token).orElse(null);
 
         if (tokenModel == null) {
             return Optional.empty();
