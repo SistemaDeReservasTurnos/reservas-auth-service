@@ -30,7 +30,7 @@ public class AuthService implements IAuthService {
     private final ITokenService tokenService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthService(PasswordEncoder passwordEncoder, UserClient userClient, TokenRepository tokenRepository, TokenService tokenService,@Lazy AuthenticationManager authenticationManager) {
+    public AuthService(PasswordEncoder passwordEncoder, UserClient userClient, TokenRepository tokenRepository, TokenService tokenService, @Lazy AuthenticationManager authenticationManager) {
         this.passwordEncoder = passwordEncoder;
         this.userClient = userClient;
         this.tokenRepository = tokenRepository;

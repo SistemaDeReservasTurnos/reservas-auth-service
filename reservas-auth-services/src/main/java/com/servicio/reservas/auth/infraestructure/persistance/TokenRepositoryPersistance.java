@@ -45,6 +45,6 @@ public class TokenRepositoryPersistance implements TokenRepository {
             return Optional.empty();
         }
 
-        return Optional.ofNullable(TokenModelMapper.toEntity(tokenModel));
+        return Optional.of(TokenModelMapper.toEntity(tokenModel));
     }
 }
