@@ -25,6 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
     private final IAuthService authService;
     private final ObjectMapper objectMapper;
+    private final String LOGOUT_ERROR = "logoutError";
 
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
@@ -44,6 +45,8 @@ public class SecurityConfig {
                                     try {
                                         authService.logout(authHeader);
                                     } catch (BadCredentialsException e) {
+                                        request.setAttribute(LOGOUT_ERROR, true);
+
                                         response.setStatus(HttpStatus.UNAUTHORIZED.value());
                                         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
@@ -56,7 +59,12 @@ public class SecurityConfig {
                                         }
                                     }
                                 })
-                                .logoutSuccessHandler(((request, response, authentication) -> SecurityContextHolder.clearContext()))
+                                .logoutSuccessHandler(((request, response, authentication) -> {
+                                    if (request.getAttribute(LOGOUT_ERROR) == null) {
+                                        SecurityContextHolder.clearContext();
+                                        response.setStatus(HttpStatus.OK.value());
+                                    }
+                                }))
                 );
 
         return http.build();
