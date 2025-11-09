@@ -12,7 +12,7 @@ import com.servicio.reservas.auth.infraestructure.users.UserClient;
 import com.servicio.reservas.auth.infraestructure.users.UserDTO;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,20 +23,13 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService implements IAuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserClient userClient;
     private final TokenRepository tokenRepository;
     private final ITokenService tokenService;
     private final AuthenticationManager authenticationManager;
-
-    public AuthService(PasswordEncoder passwordEncoder, UserClient userClient, TokenRepository tokenRepository, TokenService tokenService, @Lazy AuthenticationManager authenticationManager) {
-        this.passwordEncoder = passwordEncoder;
-        this.userClient = userClient;
-        this.tokenRepository = tokenRepository;
-        this.tokenService = tokenService;
-        this.authenticationManager = authenticationManager;
-    }
 
     @Override
     public TokenResponse register(RegisterRequest registerRequest) {
