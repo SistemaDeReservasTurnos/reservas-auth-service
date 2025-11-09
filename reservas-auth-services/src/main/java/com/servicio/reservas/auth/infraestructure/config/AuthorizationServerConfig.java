@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.servicio.reservas.auth.infraestructure.oauth.OAuth2PasswordAuthenticationConverter;
 import com.servicio.reservas.auth.infraestructure.oauth.OAuth2PasswordAuthenticationProvider;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -31,6 +32,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class AuthorizationServerConfig {
+    @Value("${application.security.client-secret-key}")
+    private String clientSecretKey;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
@@ -70,7 +74,7 @@ public class AuthorizationServerConfig {
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient gatewayClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
-                .clientSecret("$2a$10$0USPoY0qQkSln1BnQjEE6OctU57bsOJAggN13x40myntgqlMyURTi")
+                .clientSecret(clientSecretKey)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
