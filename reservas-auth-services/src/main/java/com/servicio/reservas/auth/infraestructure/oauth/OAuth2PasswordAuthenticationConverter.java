@@ -47,9 +47,7 @@ public class OAuth2PasswordAuthenticationConverter implements AuthenticationConv
         }
 
         String scope = parameters.getFirst(OAuth2ParameterNames.SCOPE);
-        System.out.println(scope);
         Set<String> scopes = scope != null ? Arrays.stream(scope.split("\\s+")).collect(Collectors.toSet()) : null;
-        System.out.println(scopes);
 
         return new OAuth2PasswordAuthenticationToken(
                 username, password, clientPrincipal, scopes);
