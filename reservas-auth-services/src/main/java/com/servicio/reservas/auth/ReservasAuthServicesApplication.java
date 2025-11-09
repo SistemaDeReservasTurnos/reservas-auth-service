@@ -12,5 +12,4 @@ public class ReservasAuthServicesApplication {
     public static void main(String[] args) {
         SpringApplication.run(ReservasAuthServicesApplication.class, args);
     }
-
 }
