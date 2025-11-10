@@ -1,5 +1,8 @@
 package com.servicio.reservas.auth.infraestructure.config;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.servicio.reservas.auth.infraestructure.oauth.OAuth2PasswordAuthenticationConverter;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,11 +25,15 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import java.security.*;
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -34,6 +42,21 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class AuthorizationServerConfig {
     @Value("${application.security.client-secret-key}")
     private String clientSecretKey;
+    @Value("${application.security.issuer-url}")
+    private String issuerUrl;
+    @Value("${application.security.jwt.expiration}")
+    private long jwtTokenExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long jwtRefreshTokenExpiration;
+
+    @Value("${rsa.keystore.path}")
+    private Resource keyStoreFile;
+    @Value("${rsa.keystore.password}")
+    private String keyStorePassword;
+    @Value("${rsa.keystore.alias}")
+    private String keyAlias;
+    @Value("${rsa.keystore.key-password}")
+    private String keyPassword;
 
     @Bean
     @Order(1)
@@ -71,10 +94,18 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() {
+    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
+        String clientSecretHash = passwordEncoder.encode(clientSecretKey);
+
+        TokenSettings tokenSettings = TokenSettings.builder()
+                .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
+                .refreshTokenTimeToLive(Duration.ofDays(jwtRefreshTokenExpiration))
+                .build();
+
+
         RegisteredClient gatewayClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("gateway")
-                .clientSecret(clientSecretKey)
+                .clientSecret(clientSecretHash)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
@@ -82,6 +113,7 @@ public class AuthorizationServerConfig {
                 .scope("read")
                 .scope("write")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(false).build())
+                .tokenSettings(tokenSettings)
                 .build();
 
         return new InMemoryRegisteredClientRepository(gatewayClient);
@@ -90,6 +122,32 @@ public class AuthorizationServerConfig {
     @Bean
     OAuth2AuthorizationService authorizationService() {
         return new InMemoryOAuth2AuthorizationService();
+    }
+
+    @Bean
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder()
+                .issuer(issuerUrl)
+                .build();
+    }
+
+    @Bean
+    public JWKSource<SecurityContext> jwkSource() {
+        RSAKey rsaKey = generateRsaKey();
+        JWKSet jwkSet = new JWKSet(rsaKey);
+
+        return new ImmutableJWKSet<>(jwkSet);
+    }
+
+    private RSAKey generateRsaKey() {
+        try {
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(keyStoreFile.getInputStream(), this.keyStorePassword.toCharArray());
+
+            return RSAKey.load(keyStore, this.keyAlias, this.keyPassword.toCharArray());
+        } catch (Exception e) {
+            throw new IllegalStateException("Error al cargar el keystore de RSA", e);
+        }
     }
 
     @Bean
