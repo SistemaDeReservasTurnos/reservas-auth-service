@@ -33,6 +33,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
@@ -44,9 +45,12 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class AuthorizationServerConfig {
     @Value("${application.security.client-secret-key}")
     private String clientSecretKey;
-
     @Value("${application.security.issuer-url}")
     private String issuerUrl;
+    @Value("${application.security.jwt.expiration}")
+    private long jwtTokenExpiration;
+    @Value("${application.security.jwt.refresh-token.expiration}")
+    private long jwtRefreshTokenExpiration;
 
     @Bean
     @Order(1)
@@ -88,8 +92,8 @@ public class AuthorizationServerConfig {
         String clientSecretHash = passwordEncoder.encode(clientSecretKey);
 
         TokenSettings tokenSettings = TokenSettings.builder()
-                .accessTokenTimeToLive(Duration.ofMinutes(15))
-                .refreshTokenTimeToLive(Duration.ofDays(7))
+                .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
+                .refreshTokenTimeToLive(Duration.ofDays(jwtRefreshTokenExpiration))
                 .build();
 
 
@@ -140,7 +144,7 @@ public class AuthorizationServerConfig {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             return keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
+        } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException(ex);
         }
     }
