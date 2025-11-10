@@ -1,5 +1,6 @@
 package com.servicio.reservas.auth.infraestructure.config;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,9 +33,9 @@ import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
@@ -51,6 +53,15 @@ public class AuthorizationServerConfig {
     private long jwtTokenExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long jwtRefreshTokenExpiration;
+
+    @Value("${rsa.keystore.path}")
+    private Resource keyStoreFile;
+    @Value("${rsa.keystore.password}")
+    private String keyStorePassword;
+    @Value("${rsa.keystore.alias}")
+    private String keyAlias;
+    @Value("${rsa.keystore.key-password}")
+    private String keyPassword;
 
     @Bean
     @Order(1)
@@ -127,25 +138,20 @@ public class AuthorizationServerConfig {
 
     @Bean
     public JWKSource<SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        RSAKey rsaKey = new RSAKey.Builder(publicKey)
-                .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
-                .build();
+        RSAKey rsaKey = generateRsaKey();
         JWKSet jwkSet = new JWKSet(rsaKey);
 
         return new ImmutableJWKSet<>(jwkSet);
     }
 
-    private static KeyPair generateRsaKey() {
+    private RSAKey generateRsaKey() {
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            return keyPairGenerator.generateKeyPair();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new IllegalStateException(ex);
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(keyStoreFile.getInputStream(), this.keyStorePassword.toCharArray());
+
+            return RSAKey.load(keyStore, this.keyAlias, this.keyPassword.toCharArray());
+        } catch (Exception e) {
+            throw new IllegalStateException("Error al cargar el keystore de RSA", e);
         }
     }
 
