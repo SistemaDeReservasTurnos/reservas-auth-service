@@ -45,6 +45,9 @@ public class AuthorizationServerConfig {
     @Value("${application.security.client-secret-key}")
     private String clientSecretKey;
 
+    @Value("${application.security.issuer-url}")
+    private String issuerUrl;
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
@@ -114,7 +117,7 @@ public class AuthorizationServerConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://localhost:8081")
+                .issuer(issuerUrl)
                 .build();
     }
 
