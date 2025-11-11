@@ -14,9 +14,12 @@ public enum Role {
             String cleanedText = text.trim().toUpperCase();
 
             return Role.valueOf(cleanedText);
-
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid role: " + text + ". Valid roles are: CLIENTE, EMPLEADO, ADMINISTRADOR.");
         }
+    }
+
+    public static void validate(String text) {
+        Role.fromString(text);
     }
 }
