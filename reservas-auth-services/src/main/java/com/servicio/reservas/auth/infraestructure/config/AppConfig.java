@@ -24,12 +24,12 @@ public class AppConfig {
                 UserDTO user = userClient.findByEmail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-                Role.validate(user.getRole());
+                Role role = Role.fromString(user.getRole());
 
                 return User.builder()
                         .username(user.getEmail())
                         .password(user.getPassword())
-                        .roles(user.getRole())
+                        .roles(role.toString())
                         .build();
             } catch (ServiceUnavailableException e) {
                 throw new AuthenticationServiceException("Service Unavailable. Try again later.");
