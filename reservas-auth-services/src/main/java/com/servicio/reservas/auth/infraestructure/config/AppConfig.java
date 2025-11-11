@@ -1,6 +1,7 @@
 package com.servicio.reservas.auth.infraestructure.config;
 
 import com.servicio.reservas.auth.application.exception.ServiceUnavailableException;
+import com.servicio.reservas.auth.domain.entities.Role;
 import com.servicio.reservas.auth.infraestructure.users.UserClient;
 import com.servicio.reservas.auth.infraestructure.users.UserDTO;
 import org.springframework.context.annotation.Bean;
@@ -23,9 +24,12 @@ public class AppConfig {
                 UserDTO user = userClient.findByEmail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+                Role.validate(user.getRole());
+
                 return User.builder()
                         .username(user.getEmail())
                         .password(user.getPassword())
+                        .roles(user.getRole())
                         .build();
             } catch (ServiceUnavailableException e) {
                 throw new AuthenticationServiceException("Service Unavailable. Try again later.");

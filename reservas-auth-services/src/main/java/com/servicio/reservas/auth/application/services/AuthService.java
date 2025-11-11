@@ -34,7 +34,7 @@ public class AuthService implements IAuthService {
     @Override
     public TokenResponse register(RegisterRequest registerRequest) {
         registerRequest.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        Role.fromString(registerRequest.getRole());
+        Role.validate(registerRequest.getRole());
         UserDTO user = userClient.create(registerRequest);
 
         String jwtToken = tokenService.generateToken(user);
