@@ -130,11 +130,9 @@ public class AuthorizationServerConfig {
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
         try {
-            if (registeredClientRepository.findByClientId("gateway") == null) {
-                registeredClientRepository.save(gatewayClient);
-            }
-        } catch (DuplicateKeyException ex) {
-            logger.info("Info: El cliente 'gateway' ya existe (inserción concurrente omitida).");
+            registeredClientRepository.save(gatewayClient);
+        } catch (DuplicateKeyException | IllegalArgumentException ex) {
+            logger.info("El cliente 'gateway' ya existe (inserción concurrente omitida).");
         }
 
         return registeredClientRepository;
