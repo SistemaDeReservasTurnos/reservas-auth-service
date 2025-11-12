@@ -7,6 +7,8 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.servicio.reservas.auth.infraestructure.oauth.OAuth2PasswordAuthenticationConverter;
 import com.servicio.reservas.auth.infraestructure.oauth.OAuth2PasswordAuthenticationProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,6 +66,8 @@ public class AuthorizationServerConfig {
     private String keyAlias;
     @Value("${rsa.keystore.key-password}")
     private String keyPassword;
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
     @Bean
     @Order(1)
@@ -125,12 +129,12 @@ public class AuthorizationServerConfig {
 
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
-        if (registeredClientRepository.findByClientId("gateway") == null) {
-            try {
+        try {
+            if (registeredClientRepository.findByClientId("gateway") == null) {
                 registeredClientRepository.save(gatewayClient);
-            } catch (DuplicateKeyException ex) {
-                System.out.println("Info: El cliente 'gateway' "  + "ya existe (inserción concurrente omitida).");
             }
+        } catch (DuplicateKeyException ex) {
+            logger.info("Info: El cliente 'gateway' ya existe (inserción concurrente omitida).");
         }
 
         return registeredClientRepository;
