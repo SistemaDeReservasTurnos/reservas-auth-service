@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
@@ -125,7 +126,11 @@ public class AuthorizationServerConfig {
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
         if (registeredClientRepository.findByClientId("gateway") == null) {
-            registeredClientRepository.save(gatewayClient);
+            try {
+                registeredClientRepository.save(gatewayClient);
+            } catch (DuplicateKeyException ex) {
+                System.out.println("Info: El cliente 'gateway' "  + "ya existe (inserción concurrente omitida).");
+            }
         }
 
         return registeredClientRepository;
