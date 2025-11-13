@@ -53,9 +53,9 @@ public class AuthorizationServerConfig {
     private String clientSecretKey;
     @Value("${application.security.issuer-url}")
     private String issuerUrl;
-    @Value("${application.security.jwt.expiration}")
+    @Value("${application.security.jwt.expiration-minutes}")
     private long jwtTokenExpiration;
-    @Value("${application.security.jwt.refresh-token.expiration}")
+    @Value("${application.security.jwt.refresh-token.expiration-days}")
     private long jwtRefreshTokenExpiration;
 
     @Value("${rsa.keystore.path}")
