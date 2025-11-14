@@ -1,6 +1,7 @@
 package com.servicio.reservas.auth.infraestructure.oauth;
 
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
@@ -65,8 +67,12 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
             if (!this.passwordEncoder.matches(providedPassword, userDetails.getPassword())) {
                 throw new BadCredentialsException("Invalid resource owner credentials");
             }
-        } catch (AuthenticationException e) {
+        } catch (UsernameNotFoundException | BadCredentialsException ex) {
             throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_GRANT, "Invalid resource owner credentials", null));
+        } catch (AuthenticationServiceException ex) {
+            throw new OAuth2AuthenticationException(
+                    new OAuth2Error(OAuth2ErrorCodes.TEMPORARILY_UNAVAILABLE, ex.getMessage(), null)
+            );
         }
 
         var userPrincipal = new UsernamePasswordAuthenticationToken(userDetails, providedPassword, userDetails.getAuthorities());

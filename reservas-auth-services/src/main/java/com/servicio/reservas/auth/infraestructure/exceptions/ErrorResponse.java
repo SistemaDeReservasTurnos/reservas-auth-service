@@ -1,4 +1,4 @@
-package com.servicio.reservas.auth.infraestructure.exception;
+package com.servicio.reservas.auth.infraestructure.exceptions;
 
 import lombok.Data;
 import java.time.LocalDateTime;

@@ -1,6 +1,6 @@
 package com.servicio.reservas.auth.infraestructure.config;
 
-import com.servicio.reservas.auth.application.exception.ServiceUnavailableException;
+import com.servicio.reservas.auth.application.exceptions.ServiceUnavailableException;
 import com.servicio.reservas.auth.domain.entities.Role;
 import com.servicio.reservas.auth.infraestructure.users.UserClient;
 import com.servicio.reservas.auth.infraestructure.users.UserDTO;
