@@ -1,6 +1,7 @@
 package com.servicio.reservas.auth.infraestructure.users;
 
-import com.servicio.reservas.auth.application.exception.ServiceUnavailableException;
+import com.servicio.reservas.auth.application.exceptions.ServiceUnavailableException;
+import com.servicio.reservas.auth.application.exceptions.UserAlreadyExistException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -10,6 +11,10 @@ public class MyCustomErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
+        if (response.status() == 400 && methodKey.contains("create")) {
+            return new UserAlreadyExistException("Username already exists");
+        }
+
         if (response.status() == 404 && methodKey.contains("findByEmail")) {
             return new UsernameNotFoundException("User not found");
         }
