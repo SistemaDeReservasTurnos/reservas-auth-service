@@ -136,7 +136,7 @@ public class AuthorizationServerConfig {
                 .clientSecret(internalServiceSecretHash)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-                .scope("SCOPE_INTERNAL_SERVICE")
+                .scope("INTERNAL_SERVICE")
                 .build();
 
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
