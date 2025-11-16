@@ -67,6 +67,9 @@ public class AuthorizationServerConfig {
     @Value("${rsa.keystore.key-password}")
     private String keyPassword;
 
+    @Value("${application.security.client-credentials-secret-key}")
+    private String clientCredentialsSecretKey;
+
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
     @Bean
@@ -107,6 +110,7 @@ public class AuthorizationServerConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate) {
         String clientSecretHash = passwordEncoder.encode(clientSecretKey);
+        String internalServiceSecretHash = passwordEncoder.encode(clientCredentialsSecretKey);
 
         TokenSettings tokenSettings = TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
@@ -127,12 +131,26 @@ public class AuthorizationServerConfig {
                 .tokenSettings(tokenSettings)
                 .build();
 
+        RegisteredClient internalServiceClient = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("internal-service")
+                .clientSecret(internalServiceSecretHash)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("SCOPE_INTERNAL_SERVICE")
+                .build();
+
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
         try {
             registeredClientRepository.save(gatewayClient);
         } catch (DuplicateKeyException | IllegalArgumentException ex) {
-            logger.info("El cliente 'gateway' ya existe (inserción concurrente omitida).");
+            logger.info("El cliente 'gateway' ya existe.");
+        }
+
+        try {
+            registeredClientRepository.save(internalServiceClient);
+        } catch (DuplicateKeyException | IllegalArgumentException ex) {
+            logger.info("El cliente 'internal-service' ya existe.");
         }
 
         return registeredClientRepository;
