@@ -145,7 +145,7 @@ public class AuthorizationServerConfig {
 
         registerClientRepository(registeredClientRepository, gatewayClient, clientGatewayId);
         registerClientRepository(registeredClientRepository, internalServiceClient, clientInternalId);
-        registerClientRepository(registeredClientRepository,  agendaServiceClient, clientAgendaId);
+        registerClientRepository(registeredClientRepository, agendaServiceClient, clientAgendaId);
 
         return registeredClientRepository;
     }
