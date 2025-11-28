@@ -67,6 +67,11 @@ public class AuthorizationServerConfig {
     @Value("${rsa.keystore.key-password}")
     private String keyPassword;
 
+    @Value("${spring.security.oauth2.client.registration.user-service-client.client-secret}")
+    private String clientInternalSecretKey;
+    @Value("${application.security.agenda.secret-key}")
+    private String clientAgendaSecretKey;
+
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
     @Bean
@@ -107,6 +112,12 @@ public class AuthorizationServerConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder, JdbcTemplate jdbcTemplate) {
         String clientSecretHash = passwordEncoder.encode(clientSecretKey);
+        String internalServiceSecretHash = passwordEncoder.encode(clientInternalSecretKey);
+        String agendaServiceSecretHash = passwordEncoder.encode(clientAgendaSecretKey);
+
+        String clientGatewayId = "gateway";
+        String clientInternalId = "internal-service";
+        String clientAgendaId = "agenda-service";
 
         TokenSettings tokenSettings = TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
@@ -115,7 +126,7 @@ public class AuthorizationServerConfig {
 
 
         RegisteredClient gatewayClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("gateway")
+                .clientId(clientGatewayId)
                 .clientSecret(clientSecretHash)
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.PASSWORD)
@@ -127,15 +138,34 @@ public class AuthorizationServerConfig {
                 .tokenSettings(tokenSettings)
                 .build();
 
+        RegisteredClient internalServiceClient = createRegisteredInternalClient(clientInternalId, internalServiceSecretHash);
+        RegisteredClient agendaServiceClient = createRegisteredInternalClient(clientAgendaId, agendaServiceSecretHash);
+
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
-        try {
-            registeredClientRepository.save(gatewayClient);
-        } catch (DuplicateKeyException | IllegalArgumentException ex) {
-            logger.info("El cliente 'gateway' ya existe (inserción concurrente omitida).");
-        }
+        registerClientRepository(registeredClientRepository, gatewayClient, clientGatewayId);
+        registerClientRepository(registeredClientRepository, internalServiceClient, clientInternalId);
+        registerClientRepository(registeredClientRepository, agendaServiceClient, clientAgendaId);
 
         return registeredClientRepository;
+    }
+
+    private void registerClientRepository(JdbcRegisteredClientRepository registeredClientRepository, RegisteredClient registeredClient, String clientId) {
+        try {
+            registeredClientRepository.save(registeredClient);
+        } catch (DuplicateKeyException | IllegalArgumentException ex) {
+            logger.info("El cliente '{}' ya existe.", clientId);
+        }
+    }
+
+    private RegisteredClient createRegisteredInternalClient(String clientId, String clientSecret) {
+        return RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId(clientId)
+                .clientSecret(clientSecret)
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("INTERNAL_SERVICE")
+                .build();
     }
 
     @Bean
