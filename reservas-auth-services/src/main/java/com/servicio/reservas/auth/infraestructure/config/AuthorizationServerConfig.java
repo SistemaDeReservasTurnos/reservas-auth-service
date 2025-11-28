@@ -51,7 +51,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class AuthorizationServerConfig {
     @Value("${application.security.client-secret-key}")
     private String clientSecretKey;
-    @Value("${application.security.issuer-url}")
+    @Value("${spring.security.oauth2.authorizationserver.issuer}")
     private String issuerUrl;
     @Value("${application.security.jwt.expiration-minutes}")
     private long jwtTokenExpiration;
