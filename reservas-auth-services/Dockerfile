@@ -8,8 +8,7 @@ COPY .mvn/ .mvn/
 COPY mvnw pom.xml ./
 
 # Damos permisos de ejecución al wrapper y descargamos dependencias
-RUN chmod +x mvnw
-RUN ./mvnw dependency:go-offline
+RUN chmod +x mvnw && ./mvnw dependency:go-offline
 
 # Copiamos el código fuente y los recursos
 COPY src ./src
@@ -32,8 +31,10 @@ USER spring:spring
 # Copiamos el JAR desde la etapa de construcción
 COPY --from=builder /app/app.jar app.jar
 
-# Copiamos el keystore.jks necesario para OAuth2
-COPY --from=builder /app/src/main/resources/keystore.jks keystore.jks
+# Creamos el directorio donde esperaremos que se monte el secreto
+USER root
+RUN mkdir -p /etc/secrets && chown spring:spring /etc/secrets
+USER spring:spring
 
 # Exponemos el puerto 8081
 EXPOSE 8081
