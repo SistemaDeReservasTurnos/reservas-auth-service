@@ -1,6 +1,7 @@
 package com.servicio.reservas.auth.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.servicio.reservas.auth.TestSecurityConfig;
 import com.servicio.reservas.auth.application.exceptions.ServiceUnavailableException;
 import com.servicio.reservas.auth.domain.entities.Role;
 import com.servicio.reservas.auth.infraestructure.users.UserClient;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +31,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(TestSecurityConfig.class)
 @ActiveProfiles("test")
+/*
+  Integration tests for OAuth2 login endpoints.
+  Tests the /oauth2/token endpoint for password grant, refresh token, and revocation flows.
+  Uses H2 in-memory database and mocks UserClient for isolation.
+  Runs with the 'test' Spring profile.
+ */
 class OAuth2LoginIntegrationTest {
 
     @Autowired
@@ -57,6 +66,8 @@ class OAuth2LoginIntegrationTest {
         mockUserDto.setPassword(passwordEncoder.encode("password123"));
         mockUserDto.setRole(Role.CLIENTE.toString());
         mockUserDto.setName("Juan Perez");
+
+        System.out.println(clientSecret);
     }
 
     @Test
