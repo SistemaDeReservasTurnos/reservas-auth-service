@@ -1,6 +1,7 @@
 package com.servicio.reservas.auth.register;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.servicio.reservas.auth.TestSecurityConfig;
 import com.servicio.reservas.auth.application.dto.RegisterRequest;
 import com.servicio.reservas.auth.application.exceptions.ServiceUnavailableException;
 import com.servicio.reservas.auth.application.exceptions.UserAlreadyExistsException;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
@@ -27,7 +29,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(TestSecurityConfig.class)
 @ActiveProfiles("test")
+/*
+ * Integration tests for user registration endpoint.
+ * Tests the /api/auth/register endpoint for various registration scenarios:
+ * - Successful registration
+ * - Validation failures
+ * - User already exists
+ * - User service unavailable
+ * Uses H2 in-memory database and mocks UserClient for isolation.
+ * Active profile: "test"
+ */
 class RegisterIntegrationTest {
 
     @Autowired
@@ -75,7 +88,7 @@ class RegisterIntegrationTest {
     }
 
     @Test
-    @DisplayName("Test 2: Validación de Registro - Datos Inválidos (400 Bad Request)")
+    @DisplayName("Test 2: Validación de Registro con Datos Inválidos (400 Bad Request)")
     void testRegisterValidationFailure() throws Exception {
         RegisterRequest invalidRequest = RegisterRequest.builder()
                 .email("not-an-email")
