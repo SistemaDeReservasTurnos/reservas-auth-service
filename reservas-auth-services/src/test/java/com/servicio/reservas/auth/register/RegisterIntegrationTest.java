@@ -64,7 +64,7 @@ class RegisterIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 1: Registro Exitoso (201 Created)")
+    @DisplayName("Test 1: Registro Exitoso (201 Created)")
     void testRegisterSuccess() throws Exception {
         when(userClient.create(any(RegisterRequest.class))).thenReturn(mockUserDto);
 
@@ -75,7 +75,7 @@ class RegisterIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 2: Validación de Registro - Datos Inválidos (400 Bad Request)")
+    @DisplayName("Test 2: Validación de Registro - Datos Inválidos (400 Bad Request)")
     void testRegisterValidationFailure() throws Exception {
         RegisterRequest invalidRequest = RegisterRequest.builder()
                 .email("not-an-email")
@@ -91,7 +91,7 @@ class RegisterIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 3: Usuario Ya Existe (409 Conflict)")
+    @DisplayName("Test 3: Usuario Ya Existe (409 Conflict)")
     void testRegisterUserAlreadyExists() throws Exception {
         when(userClient.create(any(RegisterRequest.class)))
                 .thenThrow(new UserAlreadyExistsException("User already exists"));
@@ -103,7 +103,7 @@ class RegisterIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 7 (Registro): Servicio de Usuarios No Disponible (503)")
+    @DisplayName("Test 4: Servicio de Usuarios No Disponible (503)")
     void testRegisterServiceUnavailable() throws Exception {
         when(userClient.create(any(RegisterRequest.class)))
                 .thenThrow(new ServiceUnavailableException("Service Unavailable"));
