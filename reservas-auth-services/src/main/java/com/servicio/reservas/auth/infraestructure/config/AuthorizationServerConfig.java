@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.Resource;
 import org.springframework.dao.DuplicateKeyException;
@@ -122,6 +123,7 @@ public class AuthorizationServerConfig {
         TokenSettings tokenSettings = TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
                 .refreshTokenTimeToLive(Duration.ofDays(jwtRefreshTokenExpiration))
+                .reuseRefreshTokens(false)
                 .build();
 
 
@@ -181,6 +183,7 @@ public class AuthorizationServerConfig {
     }
 
     @Bean
+    @Profile("!test")
     public JWKSource<SecurityContext> jwkSource() {
         RSAKey rsaKey = generateRsaKey();
         JWKSet jwkSet = new JWKSet(rsaKey);
