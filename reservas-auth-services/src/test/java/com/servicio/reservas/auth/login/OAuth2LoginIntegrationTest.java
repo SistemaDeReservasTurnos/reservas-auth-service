@@ -144,4 +144,45 @@ class OAuth2LoginIntegrationTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value("temporarily_unavailable"));
     }
+
+    @Test
+    @DisplayName("Prueba Adicional: Revocación de Token Exitosa")
+    void testTokenRevocation() throws Exception {
+        // 1. Pre-requisito: Obtener un Refresh Token válido
+        when(userClient.findByEmail("juan@test.com")).thenReturn(Optional.of(mockUserDto));
+
+        MultiValueMap<String, String> loginParams = new LinkedMultiValueMap<>();
+        loginParams.add("grant_type", "password");
+        loginParams.add("username", "juan@test.com");
+        loginParams.add("password", "password123");
+
+        String loginResponse = mockMvc.perform(post("/oauth2/token")
+                        .params(loginParams)
+                        .with(httpBasic("gateway", clientSecret)))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        String refreshToken = objectMapper.readTree(loginResponse).get("refresh_token").asText();
+
+        // 2. Ejecutar Revocación (POST /oauth2/revoke)
+        MultiValueMap<String, String> revokeParams = new LinkedMultiValueMap<>();
+        revokeParams.add("token", refreshToken);
+        revokeParams.add("token_type_hint", "refresh_token");
+
+        mockMvc.perform(post("/oauth2/revoke")
+                        .params(revokeParams)
+                        .with(httpBasic("gateway", clientSecret)))
+                .andExpect(status().isOk());
+
+        // 3. Verificación: Intentar usar el token revocado para hacer refresh
+        MultiValueMap<String, String> refreshParams = new LinkedMultiValueMap<>();
+        refreshParams.add("grant_type", "refresh_token");
+        refreshParams.add("refresh_token", refreshToken);
+
+        mockMvc.perform(post("/oauth2/token")
+                        .params(refreshParams)
+                        .with(httpBasic("gateway", clientSecret)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("invalid_grant"));
+    }
 }
