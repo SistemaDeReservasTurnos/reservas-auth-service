@@ -60,7 +60,7 @@ class OAuth2LoginIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 4: Autenticación Exitosa Password Grant (200 OK con Tokens)")
+    @DisplayName("Test 1: Autenticación Exitosa Password Grant (200 OK con Tokens)")
     void testLoginSuccess() throws Exception {
         when(userClient.findByEmail("juan@test.com")).thenReturn(Optional.of(mockUserDto));
 
@@ -80,7 +80,7 @@ class OAuth2LoginIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 5: Autenticación Fallida - Credenciales Incorrectas (400 Invalid Grant)")
+    @DisplayName("Test 2: Autenticación Fallida - Credenciales Incorrectas (400 Invalid Grant)")
     void testLoginBadCredentials() throws Exception {
         when(userClient.findByEmail("juan@test.com")).thenReturn(Optional.of(mockUserDto));
 
@@ -97,7 +97,7 @@ class OAuth2LoginIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 6: Refresco de Token Exitoso (200 OK)")
+    @DisplayName("Test 3: Refresco de Token Exitoso (200 OK)")
     void testRefreshTokenSuccess() throws Exception {
         when(userClient.findByEmail("juan@test.com")).thenReturn(Optional.of(mockUserDto));
 
@@ -128,7 +128,7 @@ class OAuth2LoginIntegrationTest {
     }
 
     @Test
-    @DisplayName("CA 7 (Login): Servicio de Usuarios No Disponible")
+    @DisplayName("Test 4: Servicio de Usuarios No Disponible")
     void testLoginServiceUnavailable() throws Exception {
         when(userClient.findByEmail(anyString()))
                 .thenThrow(new ServiceUnavailableException("Service Down"));
@@ -146,7 +146,7 @@ class OAuth2LoginIntegrationTest {
     }
 
     @Test
-    @DisplayName("Prueba Adicional: Revocación de Token Exitosa")
+    @DisplayName("Test 5: Revocación de Token Exitosa")
     void testTokenRevocation() throws Exception {
         // 1. Pre-requisito: Obtener un Refresh Token válido
         when(userClient.findByEmail("juan@test.com")).thenReturn(Optional.of(mockUserDto));
