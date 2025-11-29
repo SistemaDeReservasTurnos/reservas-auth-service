@@ -122,6 +122,7 @@ public class AuthorizationServerConfig {
         TokenSettings tokenSettings = TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
                 .refreshTokenTimeToLive(Duration.ofDays(jwtRefreshTokenExpiration))
+                .reuseRefreshTokens(false)
                 .build();
 
 
