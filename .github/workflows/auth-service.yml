@@ -1,0 +1,64 @@
+name: CI - Reservas Auth Service
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      # Solo se ejecuta si hay cambios en la carpeta de este microservicio
+      - 'reservas-auth-services/**'
+      - '.github/workflows/ci-auth-service.yml'
+  pull_request:
+    branches: [ "main", "master" ]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'reservas-auth-services/**'
+      - '.github/workflows/ci-auth-service.yml'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Configura la carpeta donde está pom.xml
+    defaults:
+      run:
+        working-directory: reservas-auth-services
+
+    steps:
+      # 1. Descargar el código del repositorio
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Configurar Java 21 (Temurin) y caché de Maven
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      # 3. Dar permisos de ejecución al wrapper de Maven
+      - name: Grant execute permission for mvnw
+        run: chmod +x mvnw
+
+      # 4. Compilar y Ejecutar los Tests
+      # - 'clean': Limpia builds anteriores
+      # - 'verify': Compila, corre tests unitarios y de integración
+      - name: Build and Test with Maven
+        run: ./mvnw clean verify
+
+      # 5. Publicar Reporte de Pruebas en GitHub
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v4
+        if: success() || failure()
+        with:
+          report_paths: '**/target/surefire-reports/*.xml'
+          detailed_summary: true
+          include_passed: true
+
+      # 6. Subir el artefacto del reporte
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: reservas-auth-services/target/surefire-reports
