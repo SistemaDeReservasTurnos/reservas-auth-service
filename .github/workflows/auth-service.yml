@@ -52,13 +52,14 @@ jobs:
         run: ./mvnw clean verify
 
       # 5. Publicar Reporte de Pruebas en GitHub
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
+      - name: Display Test Results
+        uses: dorny/test-reporter@v1
         if: always()
         with:
-          report_paths: '**/target/*-reports/TEST-*.xml'
-          detailed_summary: true
-          include_passed: true
+          name: Junit Tests Report
+          path: '**/target/*-reports/*.xml'
+          reporter: java-junit
+          fail-on-error: false
 
       # 6. Subir el artefacto del reporte
       - name: Upload Test Artifacts
