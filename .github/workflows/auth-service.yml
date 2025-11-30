@@ -14,6 +14,11 @@ on:
       - 'reservas-auth-services/**'
       - '.github/workflows/auth-service.yml'
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -51,7 +56,7 @@ jobs:
         uses: mikepenz/action-junit-report@v4
         if: always()
         with:
-          report_paths: 'reservas-auth-service/target/surefire-reports/TEST-*.xml'
+          report_paths: 'reservas-auth-services/target/surefire-reports/TEST-*.xml, reservas-auth-services/target/failsafe-reports/TEST-*.xml'
           detailed_summary: true
           include_passed: true
 
