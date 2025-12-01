@@ -59,8 +59,6 @@ public class OAuth2LoginIntegrationTest {
         mockUserDto.setPassword(passwordEncoder.encode("password123"));
         mockUserDto.setRole(Role.CLIENTE.toString());
         mockUserDto.setName("Juan Perez");
-
-        System.out.println(clientSecret);
     }
 
     /**
