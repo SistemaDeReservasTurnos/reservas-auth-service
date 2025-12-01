@@ -33,14 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
 @ActiveProfiles("test")
-/*
-  Integration tests for OAuth2 login endpoints.
-  Tests the /oauth2/token endpoint for password grant, refresh token, and revocation flows.
-  Uses H2 in-memory database and mocks UserClient for isolation.
-  Runs with the 'test' Spring profile.
- */
-class OAuth2LoginIntegrationTest {
-
+public class OAuth2LoginIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -70,6 +63,17 @@ class OAuth2LoginIntegrationTest {
         System.out.println(clientSecret);
     }
 
+    /**
+     * Test 1: Autenticación Exitosa Password Grant (200 OK con Tokens).
+     * <p>
+     * Verifica el flujo principal de inicio de sesión (Happy Path).
+     * <p>
+     * El sistema debe:
+     * 1. Recibir credenciales válidas de usuario (email/password) y de cliente (gateway/secret).
+     * 2. Autenticar al cliente usando Basic Auth.
+     * 3. Autenticar al usuario verificando su existencia y contraseña (mockeado via UserClient).
+     * 4. Generar y devolver un par de tokens (Access Token y Refresh Token) válidos.
+     */
     @Test
     @DisplayName("Test 1: Autenticación Exitosa Password Grant (200 OK con Tokens)")
     void testLoginSuccess() throws Exception {
@@ -90,6 +94,17 @@ class OAuth2LoginIntegrationTest {
                 .andExpect(jsonPath("$.token_type").value("Bearer"));
     }
 
+    /**
+     * Test 2: Autenticación Fallida - Credenciales Incorrectas (400 Invalid Grant).
+     * <p>
+     * Verifica que el sistema rechace intentos de login con contraseñas erróneas.
+     * <p>
+     * El sistema debe:
+     * 1. Validar las credenciales proporcionadas contra el UserClient.
+     * 2. Detectar que la contraseña no coincide.
+     * 3. Devolver un error estándar OAuth2 `invalid_grant` con estado 400 Bad Request.
+     * 4. No emitir ningún token.
+     */
     @Test
     @DisplayName("Test 2: Autenticación Fallida - Credenciales Incorrectas (400 Invalid Grant)")
     void testLoginBadCredentials() throws Exception {
@@ -107,6 +122,18 @@ class OAuth2LoginIntegrationTest {
                 .andExpect(jsonPath("$.error").value("invalid_grant"));
     }
 
+    /**
+     * Test 3: Refresco de Token Exitoso (200 OK).
+     * <p>
+     * Verifica el flujo de renovación de sesión mediante `refresh_token`.
+     * <p>
+     * El sistema debe:
+     * 1. Aceptar un `refresh_token` válido emitido previamente.
+     * 2. Verificar que el token no haya expirado ni sido revocado en la base de datos.
+     * 3. Generar un **nuevo** `access_token`.
+     * 4. Generar un **nuevo** `refresh_token` (Rotación de tokens activada).
+     * 5. Devolver los nuevos tokens con estado 200 OK.
+     */
     @Test
     @DisplayName("Test 3: Refresco de Token Exitoso (200 OK)")
     void testRefreshTokenSuccess() throws Exception {
@@ -138,6 +165,18 @@ class OAuth2LoginIntegrationTest {
                 .andExpect(jsonPath("$.refresh_token").value(Matchers.not(refreshToken)));
     }
 
+    /**
+     * Test 4: Servicio de Usuarios No Disponible.
+     * <p>
+     * Verifica la resiliencia y el manejo de errores cuando el microservicio de usuarios downstream falla.
+     * <p>
+     * El sistema debe:
+     * 1. Intentar contactar al UserClient durante el login.
+     * 2. Capturar la excepción de conexión (simulada).
+     * 3. No "explotar" con un error 500 genérico.
+     * 4. Traducir el error interno a un error OAuth2 `temporarily_unavailable`.
+     * 5. Devolver este error específico para que el Gateway pueda manejarlo (ej. devolviendo 503).
+     */
     @Test
     @DisplayName("Test 4: Servicio de Usuarios No Disponible")
     void testLoginServiceUnavailable() throws Exception {
@@ -156,6 +195,18 @@ class OAuth2LoginIntegrationTest {
                 .andExpect(jsonPath("$.error").value("temporarily_unavailable"));
     }
 
+    /**
+     * Test 5: Revocación de Token Exitosa.
+     * <p>
+     * Verifica la capacidad de invalidar tokens bajo demanda (Logout).
+     * <p>
+     * El sistema debe:
+     * 1. Permitir al cliente autenticado llamar al endpoint `/oauth2/revoke`.
+     * 2. Marcar el token proporcionado como revocado en la base de datos.
+     * 3. Responder con 200 OK.
+     * 4. Rechazar cualquier intento posterior de usar ese token para refrescar la sesión,
+     * devolviendo `invalid_grant`.
+     */
     @Test
     @DisplayName("Test 5: Revocación de Token Exitosa")
     void testTokenRevocation() throws Exception {
