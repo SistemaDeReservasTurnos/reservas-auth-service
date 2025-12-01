@@ -1,5 +1,6 @@
 package com.servicio.reservas.auth.application.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
@@ -9,6 +10,7 @@ import jakarta.validation.constraints.Pattern;
 
 @Data
 @Builder
+@AllArgsConstructor
 public class RegisterRequest {
     @NotBlank(message = "Name is required")
     private String name;

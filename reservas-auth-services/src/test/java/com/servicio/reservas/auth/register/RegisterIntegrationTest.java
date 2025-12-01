@@ -31,18 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Import(TestSecurityConfig.class)
 @ActiveProfiles("test")
-/*
- * Integration tests for user registration endpoint.
- * Tests the /api/auth/register endpoint for various registration scenarios:
- * - Successful registration
- * - Validation failures
- * - User already exists
- * - User service unavailable
- * Uses H2 in-memory database and mocks UserClient for isolation.
- * Active profile: "test"
- */
-class RegisterIntegrationTest {
-
+public class RegisterIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -76,6 +65,17 @@ class RegisterIntegrationTest {
         mockUserDto.setName("Juan Perez");
     }
 
+    /**
+     * Test 1: Registro Exitoso (201 Created).
+     * <p>
+     * Verifica el "Happy Path" del proceso de registro de usuarios.
+     * <p>
+     * El sistema debe:
+     * 1. Recibir una solicitud de registro con datos válidos (DTO {@link RegisterRequest}).
+     * 2. Delegar la creación al microservicio de usuarios (simulado por el mock {@link UserClient}).
+     * 3. Recibir la confirmación de creación (DTO {@link UserDTO}).
+     * 4. Responder al cliente con un estado HTTP 201 Created.
+     */
     @Test
     @DisplayName("Test 1: Registro Exitoso (201 Created)")
     void testRegisterSuccess() throws Exception {
@@ -87,6 +87,18 @@ class RegisterIntegrationTest {
                 .andExpect(status().isCreated());
     }
 
+    /**
+     * Test 2: Validación de Registro - Datos Inválidos (400 Bad Request).
+     * <p>
+     * Verifica que la capa de validación (Bean Validation / Hibernate Validator) intercepte
+     * datos incorrectos antes de procesar cualquier lógica de negocio.
+     * <p>
+     * Escenario:
+     * 1. Se envía un email con formato incorrecto ("not-an-email").
+     * 2. Se envía una contraseña demasiado corta.
+     * 3. El controlador debe rechazar la petición inmediatamente con un 400 Bad Request.
+     * 4. La respuesta debe contener detalles sobre los campos erróneos ("errors.email", "errors.password").
+     */
     @Test
     @DisplayName("Test 2: Validación de Registro con Datos Inválidos (400 Bad Request)")
     void testRegisterValidationFailure() throws Exception {
@@ -103,6 +115,17 @@ class RegisterIntegrationTest {
                 .andExpect(jsonPath("$.errors.password").exists());
     }
 
+    /**
+     * Test 3: Usuario Ya Existe (409 Conflict).
+     * <p>
+     * Verifica el manejo de conflictos de unicidad (ej. email duplicado).
+     * <p>
+     * Escenario:
+     * 1. El {@link UserClient} (mock) lanza una {@link UserAlreadyExistsException}, simulando
+     * que el microservicio de usuarios rechazó la creación por duplicidad.
+     * 2. El servicio de autenticación debe capturar esta excepción de negocio.
+     * 3. Debe transformar la excepción en una respuesta HTTP 409 Conflict estándar.
+     */
     @Test
     @DisplayName("Test 3: Usuario Ya Existe (409 Conflict)")
     void testRegisterUserAlreadyExists() throws Exception {
@@ -115,6 +138,18 @@ class RegisterIntegrationTest {
                 .andExpect(status().isConflict());
     }
 
+    /**
+     * Test 4: Servicio de Usuarios No Disponible (503 Service Unavailable).
+     * <p>
+     * Verifica la resiliencia del sistema cuando una dependencia crítica falla.
+     * <p>
+     * Escenario:
+     * 1. El {@link UserClient} falla al intentar conectar con el microservicio de usuarios
+     * (lanzando {@link ServiceUnavailableException}).
+     * 2. El servicio de autenticación no debe "explotar" con un error 500 genérico.
+     * 3. Debe capturar el fallo y responder con un 503 Service Unavailable, indicando
+     * al cliente que el problema es temporal y del lado del servidor.
+     */
     @Test
     @DisplayName("Test 4: Servicio de Usuarios No Disponible (503)")
     void testRegisterServiceUnavailable() throws Exception {
