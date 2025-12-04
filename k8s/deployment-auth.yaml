@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: reservas-auth-service
-          # nombre local de la imagen -> auth-service-local:latest
+          # nombre local de la imagen -> auth-service-local:latest (igual siempre)
           image: us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0
           imagePullPolicy: Always  # nos aseguramos que siempre use la ultima version de la imagen
           ports:
