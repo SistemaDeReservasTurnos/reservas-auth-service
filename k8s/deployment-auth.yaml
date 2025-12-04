@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-auth
+  namespace: StudioBarber
+  labels:
+    app: reservas-auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reservas-auth-service
+  template:
+    metadata:
+      labels:
+        app: reservas-auth-service
+    spec:
+      containers:
+        - name: reservas-auth-service
+          # nombre local de la imagen -> auth-service-local:latest
+          image: us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0
+          imagePullPolicy: Always  # nos aseguramos que siempre use la ultima version de la imagen
+          ports:
+            - containerPort: 8084
+              protocol: TCP
+
+# cambios en el codigo = nueva imagen = nueva version vX.0.0
+# pasos para subir a Artifact Registry
+# 1. docker build -t auth-service-local:latest . -> contruir imagen local
+# 2. docker tag auth-service-local:latest us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.1 -> tag para subir a AR
+# 3. docker push us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0 -> subir imagen
