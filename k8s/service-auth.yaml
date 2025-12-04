@@ -9,7 +9,7 @@ spec:
   ports:
     - protocol: TCP #http
       port: 80
-      targetPort: 8084
+      targetPort: 8081
   type: ClusterIP # expuesto dentro del cluster
 
   #app -> etiqueta del pod, cualquiera que la tenga pertenece a este service

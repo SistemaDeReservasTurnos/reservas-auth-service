@@ -21,7 +21,7 @@ spec:
           image: us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0
           imagePullPolicy: Always  # nos aseguramos que siempre use la ultima version de la imagen
           ports:
-            - containerPort: 8084
+            - containerPort: 8081
               protocol: TCP
 
 # cambios en el codigo = nueva imagen = nueva version vX.0.0
