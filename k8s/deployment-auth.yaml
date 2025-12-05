@@ -44,7 +44,7 @@ spec:
 
             # 3. ESPECIFICAR LA CADENA DE CONEXIÓN DE LA DB REMOTA (Proyecto BD)
 
-            - "proyecto-propietario-db-789:us-central1:instancia-db-produccion=tcp:5432"
+            - "evocative-ethos-476120-h8:us-central1:reservasdb=tcp:5432"
 
             # 4. HABILITAR EL USO DE LAS CREDENCIALES DE LA KSA/GSA
 
