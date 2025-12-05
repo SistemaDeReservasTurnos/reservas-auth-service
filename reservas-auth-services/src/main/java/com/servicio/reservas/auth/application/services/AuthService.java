@@ -15,7 +15,6 @@ public class AuthService implements IAuthService {
     @Override
     public void register(RegisterRequest registerRequest) {
         registerRequest.setRole(Role.CLIENTE.toString());
-        System.out.println(registerRequest);
         userClient.create(registerRequest);
     }
 }
