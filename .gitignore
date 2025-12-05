@@ -23,5 +23,8 @@
 hs_err_pid*
 replay_pid*
 
-#Variables de entorno
+# Variables de entorno
 .env
+
+# Idea
+.idea
