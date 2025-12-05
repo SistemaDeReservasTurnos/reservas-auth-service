@@ -1,5 +1,6 @@
 package com.servicio.reservas.auth.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 import jakarta.validation.constraints.NotBlank;
@@ -25,6 +26,6 @@ public class RegisterRequest {
     @Pattern(regexp = "\\d{10}", message = "Phone number must be exactly 10 digits")
     private String phone_number;
 
-    @NotBlank(message = "Role is required")
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String role;
 }

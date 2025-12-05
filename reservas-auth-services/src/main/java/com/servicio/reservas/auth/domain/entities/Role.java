@@ -18,8 +18,4 @@ public enum Role {
             throw new IllegalArgumentException("Invalid role: " + text + ". Valid roles are: CLIENTE, EMPLEADO, ADMINISTRADOR.");
         }
     }
-
-    public static void validate(String text) {
-        Role.fromString(text);
-    }
 }
