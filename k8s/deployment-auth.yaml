@@ -26,9 +26,9 @@ spec:
               protocol: TCP
           env:
             - name: DB_HOST
-              value: 127.0.0.1 # La aplicación se conecta al sidecar
+              value: "127.0.0.1" # La aplicación se conecta al sidecar
             - name: DB_PORT
-              value: 5432     # Puerto que usa el sidecar
+              value: "5432"     # Puerto que usa el sidecar
             - name: DB_USER   # El user es el email del GSA
               value: "auth-permisos@studiobarber-480215.iam.gserviceaccount.com"
 
