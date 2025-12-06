@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,19 +23,14 @@ public class AppConfig {
                 UserDTO user = userClient.findByEmail(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-                Role role = Role.fromString(user.getRole());
+                Role.validate(user.getRole());
 
-                return User.builder()
-                        .username(user.getEmail())
-                        .password(user.getPassword())
-                        .roles(role.toString())
-                        .build();
+                return new CustomUserDetails(user);
             } catch (ServiceUnavailableException e) {
                 throw new AuthenticationServiceException("Service Unavailable. Try again later.");
             }
         };
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
