@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deploy-auth
-  namespace: StudioBarber
+  namespace: studio-barber
   labels:
     app: reservas-auth-service
 spec:
@@ -25,6 +25,19 @@ spec:
             - containerPort: 8081
               protocol: TCP
           env:
+
+            - name: SPRING_PROFILES_ACTIVE # -> para activar el perfil de cloud (configuraciones especificas para la nube)
+              value: "cloud"
+
+            - name: CLIENT_CREDENTIALS_SECRET_KEY
+              value: "file:/etc/secrets/CLIENT_SECRET_KEY_FILE"
+
+            - name: KEYSTORE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: keystore-password-k8s     # Nombre del K8s Secret creado en el provider
+                  key: KEYSTORE_PASS              # Clave dentro del K8s Secret
+
             - name: DB_HOST
               value: "127.0.0.1" # La aplicación se conecta al sidecar
             - name: DB_PORT
@@ -43,15 +56,26 @@ spec:
             - "-instances"
 
             # 3. ESPECIFICAR LA CADENA DE CONEXIÓN DE LA DB REMOTA (Proyecto BD)
-
             - "evocative-ethos-476120-h8:us-central1:reservasdb=tcp:5432"
 
             # 4. HABILITAR EL USO DE LAS CREDENCIALES DE LA KSA/GSA
-
             - "-enable_iam_login"
 
             # 5. Modo de autorización predeterminado para Workload Identity
             - "-term_timeout=30s"
+
+          volumeMounts:
+            - name: secrets-auth-volume
+              mountPath: "/etc/secrets"  # <-- Esto coincide con tu application-cloud.properties
+              readOnly: true
+
+      volumes:
+        - name: secrets-auth-volume
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClassName: "gcp-secrets-config" # Referencia al objeto creado
 
 
 # cambios en el codigo = nueva imagen = nueva version vX.0.0
