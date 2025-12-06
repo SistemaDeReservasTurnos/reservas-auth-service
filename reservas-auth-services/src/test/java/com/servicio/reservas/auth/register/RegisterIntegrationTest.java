@@ -54,7 +54,6 @@ public class RegisterIntegrationTest {
                 .email("juan@test.com")
                 .password("password123")
                 .phone_number("1234567890")
-                .role(Role.CLIENTE.toString())
                 .build();
 
         mockUserDto = new UserDTO();
