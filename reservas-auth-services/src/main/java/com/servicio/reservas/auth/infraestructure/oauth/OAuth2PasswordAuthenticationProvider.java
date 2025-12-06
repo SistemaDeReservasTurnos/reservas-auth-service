@@ -1,5 +1,6 @@
 package com.servicio.reservas.auth.infraestructure.oauth;
 
+import com.servicio.reservas.auth.infraestructure.config.CustomUserDetails;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -146,7 +147,15 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
 
         this.authorizationService.save(authorization);
 
-        return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken);
+        Map<String, Object> additionalParameters = new HashMap<>();
+
+        if (userDetails instanceof CustomUserDetails customUser) {
+            additionalParameters.put("userId", customUser.getId());
+            additionalParameters.put("name", customUser.getName());
+            additionalParameters.put("email", customUser.getEmail());
+        }
+
+        return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken, additionalParameters);
     }
 
     private static Set<String> getAuthorizedScopes(OAuth2PasswordAuthenticationToken passwordGrantAuthenticationToken, RegisteredClient registeredClient) {
