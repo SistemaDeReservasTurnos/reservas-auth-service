@@ -54,7 +54,6 @@ public class RegisterIntegrationTest {
                 .email("juan@test.com")
                 .password("password123")
                 .phone_number("1234567890")
-                .role(Role.CLIENTE.toString())
                 .build();
 
         mockUserDto = new UserDTO();
@@ -116,7 +115,7 @@ public class RegisterIntegrationTest {
     }
 
     /**
-     * Test 3: Usuario Ya Existe (409 Conflict).
+     * Test 3: Usuario Ya Existe (422 Unprocessable Entity).
      * <p>
      * Verifica el manejo de conflictos de unicidad (ej. email duplicado).
      * <p>
@@ -124,10 +123,10 @@ public class RegisterIntegrationTest {
      * 1. El {@link UserClient} (mock) lanza una {@link UserAlreadyExistsException}, simulando
      * que el microservicio de usuarios rechazó la creación por duplicidad.
      * 2. El servicio de autenticación debe capturar esta excepción de negocio.
-     * 3. Debe transformar la excepción en una respuesta HTTP 409 Conflict estándar.
+     * 3. Debe transformar la excepción en una respuesta HTTP 422 Unprocessable Entity estándar.
      */
     @Test
-    @DisplayName("Test 3: Usuario Ya Existe (409 Conflict)")
+    @DisplayName("Test 3: Usuario Ya Existe (422 Unprocessable Entity)")
     void testRegisterUserAlreadyExists() throws Exception {
         when(userClient.create(any(RegisterRequest.class)))
                 .thenThrow(new UserAlreadyExistsException("User already exists"));
@@ -135,7 +134,7 @@ public class RegisterIntegrationTest {
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRegisterRequest)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isUnprocessableEntity());
     }
 
     /**
