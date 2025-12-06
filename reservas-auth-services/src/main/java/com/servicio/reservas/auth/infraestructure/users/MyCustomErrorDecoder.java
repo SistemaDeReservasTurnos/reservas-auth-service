@@ -11,7 +11,7 @@ public class MyCustomErrorDecoder implements ErrorDecoder {
 
     @Override
     public Exception decode(String methodKey, Response response) {
-        if (response.status() == 400 && methodKey.endsWith("create")) {
+        if (response.status() == 422 && methodKey.contains("create")) {
             return new UserAlreadyExistsException("User already exists");
         }
 

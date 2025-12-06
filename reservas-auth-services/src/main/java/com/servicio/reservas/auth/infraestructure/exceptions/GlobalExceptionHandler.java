@@ -32,9 +32,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ErrorResponse handleUserAlreadyExistException(UserAlreadyExistsException ex, HttpServletRequest request) {
-        return new ErrorResponse(HttpStatus.CONFLICT.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
+        return new ErrorResponse(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getLocalizedMessage(), request.getRequestURI(), null);
     }
 
     @ExceptionHandler({AuthenticationServiceException.class, ServiceUnavailableException.class})
