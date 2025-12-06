@@ -149,14 +149,10 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
 
         Map<String, Object> additionalParameters = new HashMap<>();
 
-        System.out.println("DEBUG: Clase de userDetails: " + userDetails.getClass().getName());
-
         if (userDetails instanceof CustomUserDetails customUser) {
             additionalParameters.put("userId", customUser.getId());
             additionalParameters.put("name", customUser.getName());
             additionalParameters.put("email", customUser.getEmail());
-        } else {
-            System.out.println("DEBUG: NO es CustomUserDetails. Es un usuario normal.");
         }
 
         return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken, additionalParameters);
