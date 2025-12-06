@@ -89,7 +89,11 @@ public class OAuth2LoginIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").isNotEmpty())
                 .andExpect(jsonPath("$.refresh_token").isNotEmpty())
-                .andExpect(jsonPath("$.token_type").value("Bearer"));
+                .andExpect(jsonPath("$.token_type").value("Bearer"))
+                .andExpect(jsonPath("$.expires_in").value(899))
+                .andExpect(jsonPath("$.userId").value(mockUserDto.getId()))
+                .andExpect(jsonPath("$.name").value(mockUserDto.getName()))
+                .andExpect(jsonPath("$.email").value(mockUserDto.getEmail()));
     }
 
     /**
@@ -160,6 +164,8 @@ public class OAuth2LoginIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.access_token").isNotEmpty())
                 .andExpect(jsonPath("$.refresh_token").isNotEmpty())
+                .andExpect(jsonPath("$.token_type").value("Bearer"))
+                .andExpect(jsonPath("$.expires_in").value(899))
                 .andExpect(jsonPath("$.refresh_token").value(Matchers.not(refreshToken)));
     }
 
