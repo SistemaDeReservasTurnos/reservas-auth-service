@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-auth
+  namespace: studio-barber
+  labels:
+    app: reservas-auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reservas-auth-service
+  template:
+    metadata:
+      labels:
+        app: reservas-auth-service
+    spec:
+      serviceAccountName: auth-permissions-ksa #vinculación con la GSA
+      containers:
+        - name: reservas-auth-service
+          # nombre local de la imagen -> auth-service-local:latest (igual siempre)
+          image: us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0
+          imagePullPolicy: Always  # nos aseguramos que siempre use la ultima version de la imagen
+          ports:
+            - containerPort: 8081
+              protocol: TCP
+          env:
+
+            - name: SPRING_PROFILES_ACTIVE # -> para activar el perfil de cloud (configuraciones especificas para la nube)
+              value: "cloud"
+
+            - name: CLIENT_CREDENTIALS_SECRET_KEY
+              value: "file:/etc/secrets/CLIENT_SECRET_KEY_FILE"
+
+            - name: KEYSTORE_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: keystore-password-k8s     # Nombre del K8s Secret creado en el provider
+                  key: KEYSTORE_PASS              # Clave dentro del K8s Secret
+
+            - name: DB_HOST
+              value: "127.0.0.1" # La aplicación se conecta al sidecar
+            - name: DB_PORT
+              value: "5432"     # Puerto que usa el sidecar
+            - name: DB_USER   # El user es el email del GSA
+              value: "auth-permisos@studiobarber-480215.iam.gserviceaccount.com"
+
+          ## sidecar del proxy cloud sql auth
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.0 #-> image oficial del proxy
+          securityContext:
+            runAsNonRoot: true
+          command:
+
+            - "/cloud_sql_proxy"
+            - "-instances"
+
+            # 3. ESPECIFICAR LA CADENA DE CONEXIÓN DE LA DB REMOTA (Proyecto BD)
+            - "evocative-ethos-476120-h8:us-central1:reservasdb=tcp:5432"
+
+            # 4. HABILITAR EL USO DE LAS CREDENCIALES DE LA KSA/GSA
+            - "-enable_iam_login"
+
+            # 5. Modo de autorización predeterminado para Workload Identity
+            - "-term_timeout=30s"
+
+          volumeMounts:
+            - name: secrets-auth-volume
+              mountPath: "/etc/secrets"  # <-- Esto coincide con tu application-cloud.properties
+              readOnly: true
+
+      volumes:
+        - name: secrets-auth-volume
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClassName: "gcp-secrets-config" # Referencia al objeto creado
+
+
+# cambios en el codigo = nueva imagen = nueva version vX.0.0
+# pasos para subir a Artifact Registry
+# 1. docker build -t auth-service-local:latest . -> contruir imagen local
+# 2. docker tag auth-service-local:latest us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.1 -> tag para subir a AR
+# 3. docker push us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0 -> subir imagen
