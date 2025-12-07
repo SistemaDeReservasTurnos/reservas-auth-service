@@ -15,7 +15,7 @@ spec:
       labels:
         app: reservas-auth-service
     spec:
-      serviceAccountName: auth-all-permissions-ksa #vinculación con la GSA
+      serviceAccountName: auth-permissions-ksa #vinculación con la GSA
       containers:
         - name: reservas-auth-service
           # nombre local de la imagen -> auth-service-local:latest (igual siempre)
