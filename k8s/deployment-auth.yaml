@@ -29,9 +29,6 @@ spec:
             - name: SPRING_PROFILES_ACTIVE # -> para activar el perfil de cloud (configuraciones especificas para la nube)
               value: "cloud"
 
-            - name: CLIENT_CREDENTIALS_SECRET_KEY
-              value: "file:/etc/secrets/CLIENT_SECRET_KEY_FILE"
-
             - name: KEYSTORE_PASS
               valueFrom:
                 secretKeyRef:
