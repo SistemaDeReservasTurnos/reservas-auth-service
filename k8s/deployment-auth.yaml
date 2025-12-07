@@ -81,5 +81,5 @@ spec:
 # cambios en el codigo = nueva imagen = nueva version vX.0.0
 # pasos para subir a Artifact Registry
 # 1. docker build -t auth-service-local:latest . -> contruir imagen local
-# 2. docker tag auth-service-local:latest us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.1 -> tag para subir a AR
+# 2. docker tag auth-service-local:latest us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0 -> tag para subir a AR
 # 3. docker push us-central1-docker.pkg.dev/studiobarber-480215/repo-auth/auth-service:v1.0.0 -> subir imagen
