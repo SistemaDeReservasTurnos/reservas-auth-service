@@ -77,6 +77,8 @@ public class AuthorizationServerConfig {
     private String clientInternalSecretKey;
     @Value("${application.security.agenda.secret-key}")
     private String clientAgendaSecretKey;
+    @Value("${application.security.pagos.secret-key}")
+    private String clientPagosSecretKey;
 
     private static final Logger logger = LoggerFactory.getLogger(AuthorizationServerConfig.class);
 
@@ -120,10 +122,12 @@ public class AuthorizationServerConfig {
         String clientSecretHash = passwordEncoder.encode(clientSecretKey);
         String internalServiceSecretHash = passwordEncoder.encode(clientInternalSecretKey);
         String agendaServiceSecretHash = passwordEncoder.encode(clientAgendaSecretKey);
+        String pagosServiceSecretHash = passwordEncoder.encode(clientPagosSecretKey);
 
         String clientGatewayId = "gateway";
         String clientInternalId = "internal-service";
         String clientAgendaId = "agenda-service";
+        String clientPagosId = "pagos-service";
 
         TokenSettings tokenSettings = TokenSettings.builder()
                 .accessTokenTimeToLive(Duration.ofMinutes(jwtTokenExpiration))
@@ -147,12 +151,14 @@ public class AuthorizationServerConfig {
 
         RegisteredClient internalServiceClient = createRegisteredInternalClient(clientInternalId, internalServiceSecretHash);
         RegisteredClient agendaServiceClient = createRegisteredInternalClient(clientAgendaId, agendaServiceSecretHash);
+        RegisteredClient pagosServiceClient = createRegisteredInternalClient(clientPagosId, pagosServiceSecretHash);
 
         JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcTemplate);
 
         registerClientRepository(registeredClientRepository, gatewayClient, clientGatewayId);
         registerClientRepository(registeredClientRepository, internalServiceClient, clientInternalId);
         registerClientRepository(registeredClientRepository, agendaServiceClient, clientAgendaId);
+        registerClientRepository(registeredClientRepository, pagosServiceClient, clientPagosId);
 
         return registeredClientRepository;
     }
