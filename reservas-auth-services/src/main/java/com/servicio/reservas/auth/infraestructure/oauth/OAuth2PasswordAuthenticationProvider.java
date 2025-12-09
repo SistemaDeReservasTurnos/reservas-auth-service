@@ -153,6 +153,7 @@ public class OAuth2PasswordAuthenticationProvider implements AuthenticationProvi
             additionalParameters.put("userId", customUser.getId());
             additionalParameters.put("name", customUser.getName());
             additionalParameters.put("email", customUser.getEmail());
+            additionalParameters.put("role", customUser.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet()));
         }
 
         return new OAuth2AccessTokenAuthenticationToken(registeredClient, clientPrincipal, accessToken, refreshToken, additionalParameters);
